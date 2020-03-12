@@ -10,10 +10,14 @@ import os, sys
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import logging
 
 __all__ = [
-    "sendEmail"
+    "sendEmail",
+    "emailLogger"
     ]
+
+emailLogger = logging.Logger("EmailSender")
     
 def sendEmail(email_host, email_sender, email_auth, receive_list, to_str, subject, content, attach_dict):
     #email_host = 'smtp.qq.com'        # 邮箱服务器地址
@@ -43,12 +47,16 @@ def sendEmail(email_host, email_sender, email_auth, receive_list, to_str, subjec
         smtp.sendmail(email_sender, receive_list, msg.as_string())
         # 参数分别是发送者，接收者，第三个是把上面的发送邮件的内容变成字符串
         smtp.quit() # 发送完毕后退出smtp
-        print ('email send success.')
+        emailLogger.debug('email send success.')
     except Exception as e: 
-        print ("email send error: ", e)
+        emailLogger.error("email send error: ", e)
         return False
     return True
         
 if __name__ == "__main__":
     attach1 = os.path.abspath(os.path.join(__file__, "../../README.md"))
-    sendEmail('smtp.qq.com', '***@qq.com', '***', ['***@qq.com', '***@qq.com'], '**<***@qq.com>, **<***@qq.com>', "测试邮件", "这是一封测试邮件", {attach1: "log1"})
+    result = sendEmail('smtp.qq.com', '***@qq.com', '***', ['***@qq.com', '***@qq.com'], '**<***@qq.com>, **<***@qq.com>', "测试邮件", "这是一封测试邮件", {attach1: "log1"})
+    if result:
+        print("success")
+    else:
+        print("failed")
